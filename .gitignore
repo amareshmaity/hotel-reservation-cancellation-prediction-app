@@ -1,0 +1,6 @@
+venv/
+.vscode*
+__pycache__
+mlruns/
+logs/
+Hotel_Reservation_Prediction_APP.egg-info
