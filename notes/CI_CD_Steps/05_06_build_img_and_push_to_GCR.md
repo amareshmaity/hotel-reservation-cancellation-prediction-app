@@ -341,27 +341,36 @@ pipeline {
 
         stage('Building and Pushing Docker Image to Artifact Registry') {
             steps {
-                withCredentials([file(credentialsId: 'GCP_KEY', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    echo 'Authenticating via Impersonated Credentials...'
-                    
-                    // Pass the file location explicitly to the active subshell
+                withCredentials([
+                    file(credentialsId: 'GCP_KEY', variable: 'GOOGLE_APPLICATION_CREDENTIALS')
+                ]) {
+                    echo 'Logging into Google Artifact Registry and pushing image...'
+
                     sh '''
+                        # 1. Export the Application Default Credentials file path
                         export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
-                        
-                        # This will create the repo automatically if it is missing
-                        gcloud artifacts repositories create my-hotel-repo \
+
+                        # 2. Automatically create the Artifact Registry repo if it does not exist
+                        gcloud artifacts repositories create "$GCP_REPO" \
                             --repository-format=docker \
-                            --location=us-central1 \
-                            --quiet || echo "Repository already exists..."
-                            
-                        # Configure docker auth helper using the impersonation file
-                        gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-                        
-                        # Build and Push
-                        docker build -t us-central1-docker.pkg.dev/your-project-id/my-hotel-repo/hotel-app:latest .
-                        docker push us-central1-docker.pkg.dev/your-project-id/my-hotel-repo/hotel-app:latest
+                            --location="$GCP_REGION" \
+                            --description="Docker repository for ML App" \
+                            --quiet || echo "Repository already exists, moving forward..."
+
+                        # 3. Build the Docker container image locally
+                        docker build -t "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest" .
+
+                        # 4. Generate a short-lived 1-hour access token from your credential file
+                        TOKEN=$(gcloud auth print-access-token)
+
+                        # 5. Direct login to Docker registry to bypass the file permission lock
+                        echo "$TOKEN" | docker login -u oauth2accesstoken --password-stdin "https://${GCP_REGION}-docker.pkg.dev"
+
+                        # 6. Push the image to your repository
+                        docker push "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest"   
                     '''
                 }
+
 
             }
         }

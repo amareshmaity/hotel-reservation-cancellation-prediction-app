@@ -39,7 +39,7 @@ pipeline {
                 withCredentials([
                     file(credentialsId: 'GCP_KEY', variable: 'GOOGLE_APPLICATION_CREDENTIALS')
                     ]) {
-                        echo 'Authenticating via Impersonated Credentials...'
+                        echo 'Logging into Google Artifact Registry and pushing image...'
 
                         sh '''
                         export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
@@ -48,11 +48,13 @@ pipeline {
                             --repository-format=docker \
                             --location=$GCP_REGION \
                             --description="Docker repository for ML App" \
-                            --quite || echo "Repository already exists..."
+                            --quite || echo "Repository already exists, moving forward..."
 
-                        gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev --quiet
+                        docker build -t ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest .
 
-                        docker build -t ${GCP_REGION}-docker.pkg.dev/$GCP_PROJECT/$GCP_REPO/ml-project:latest .
+                        TOKEN=$(gcloud auth print-access-token)
+
+                        echo "$TOKEN" | docker login -u oauth2accesstoken --password-stdin "https://${GCP_REGION}-docker.pkg.dev"
 
                         docker push ${GCP_REGION}-docker.pkg.dev/$GCP_PROJECT/$GCP_REPO/ml-project:latest   
                         
