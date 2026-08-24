@@ -608,6 +608,12 @@ If Google Cloud organization has explicitly blocked downloading JSON private key
 
 ---
 
+**Note:**
+ You can find out the exact location of the secret key file by running below command in the cmd
+``bash
+echo %APPDATA%\gcloud\mlops-project-1-key.json
+```
+
 <br/>
 
 ## 11. Create Configuration File
