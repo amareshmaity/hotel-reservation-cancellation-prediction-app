@@ -347,31 +347,31 @@ pipeline {
                     echo 'Logging into Google Artifact Registry and pushing image...'
 
                     sh '''
-                        # 1. Export the Application Default Credentials file path
+                        # 1. Point Google's underlying libraries to your impersonation file
                         export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
 
-                        gcloud auth login --cred-file="${GOOGLE_APPLICATION_CREDENTIALS}" --quiet
+                        # 2. Extract a temporary 1-hour access token natively using your configuration
+                        TOKEN=$(gcloud auth print-access-token)
 
-                        # 2. Automatically create the Artifact Registry repo if it does not exist
+                        # 3. Create the Artifact Registry repository using your personal authenticated token
                         gcloud artifacts repositories create "$GCP_REPO" \
                             --repository-format=docker \
                             --location="$GCP_REGION" \
                             --description="Docker repository for ML App" \
+                            --token="$TOKEN" \
                             --quiet || echo "Repository already exists, moving forward..."
 
-                        # 3. Build the Docker container image locally
+                        # 4. Build the Docker container image locally
                         docker build -t "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest" .
 
-                        # 4. Generate a short-lived 1-hour access token from your credential file
-                        TOKEN=$(gcloud auth print-access-token)
-
-                        # 5. Direct login to Docker registry to bypass the file permission lock
+                        # 5. Direct login to Docker registry passing the extracted token string
                         echo "$TOKEN" | docker login -u oauth2accesstoken --password-stdin "https://${GCP_REGION}-docker.pkg.dev"
 
-                        # 6. Push the image to your repository
+                        # 6. Push the image directly to your repository
                         docker push "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest"   
                     '''
                 }
+
 
 
             }

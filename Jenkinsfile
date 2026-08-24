@@ -44,17 +44,18 @@ pipeline {
                         sh '''
                         export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
 
-                        gcloud auth login --cred-file="${GOOGLE_APPLICATION_CREDENTIALS}" --quiet
+                        TOKEN=$(gcloud auth print-access-token)
 
                         gcloud artifacts repositories create $GCP_REPO \
                             --repository-format=docker \
                             --location=$GCP_REGION \
                             --description="Docker repository for ML App" \
+                            --token="$TOKEN" \
                             --quite || echo "Repository already exists, moving forward..."
 
                         docker build -t ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest .
 
-                        TOKEN=$(gcloud auth print-access-token)
+
 
                         echo "$TOKEN" | docker login -u oauth2accesstoken --password-stdin "https://${GCP_REGION}-docker.pkg.dev"
 
