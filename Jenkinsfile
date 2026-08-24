@@ -44,6 +44,8 @@ pipeline {
                         sh '''
                         export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
 
+                        gcloud auth login --cred-file="${GOOGLE_APPLICATION_CREDENTIALS}" --quiet
+
                         gcloud artifacts repositories create $GCP_REPO \
                             --repository-format=docker \
                             --location=$GCP_REGION \

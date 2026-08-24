@@ -350,6 +350,8 @@ pipeline {
                         # 1. Export the Application Default Credentials file path
                         export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
 
+                        gcloud auth login --cred-file="${GOOGLE_APPLICATION_CREDENTIALS}" --quiet
+
                         # 2. Automatically create the Artifact Registry repo if it does not exist
                         gcloud artifacts repositories create "$GCP_REPO" \
                             --repository-format=docker \
