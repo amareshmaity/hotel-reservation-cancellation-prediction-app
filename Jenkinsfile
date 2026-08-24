@@ -5,7 +5,7 @@ pipeline {
         VENV_DIR = 'venv'
         GCP_PROJECT = 'project-f3a6458e-65bc-4dab-81d'
         GCP_REGION    = 'us-central1'
-        GCP_REPO      = 'ml-project-repo'
+        GCP_REPO      = 'ml-hotel-repo'
         GCLOUD_PATH   = '/usr/bin'
 
     }
@@ -39,19 +39,16 @@ pipeline {
                 withCredentials([
                     file(credentialsId: 'GCP_KEY', variable: 'GOOGLE_APPLICATION_CREDENTIALS')
                     ]) {
-                        echo 'Ensuring repo exists, then building and pushing Docker image...'
+                        echo 'Authenticating via Impersonated Credentials...'
 
                         sh '''
-                        export PATH=$PATH:$GCLOUD_PATH
-
-                        gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
-                        gcloud config set project "$GCP_PROJECT"
+                        export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
 
                         gcloud artifacts repositories create $GCP_REPO \
                             --repository-format=docker \
                             --location=$GCP_REGION \
                             --description="Docker repository for ML App" \
-                            --if-not-exists
+                            --quite || echo "Repository already exists..."
 
                         gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev --quiet
 

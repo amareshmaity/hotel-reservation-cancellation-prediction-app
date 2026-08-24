@@ -341,37 +341,31 @@ pipeline {
 
         stage('Building and Pushing Docker Image to Artifact Registry') {
             steps {
-                withCredentials([
-                    file(credentialsId: 'GCP_KEY', variable: 'GOOGLE_APPLICATION_CREDENTIALS')
-                ]) {
-                    echo 'Ensuring repo exists, then building and pushing Docker image...'
-
+                withCredentials([file(credentialsId: 'GCP_KEY', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    echo 'Authenticating via Impersonated Credentials...'
+                    
+                    // Pass the file location explicitly to the active subshell
                     sh '''
-                    export PATH=$PATH:$GCLOUD_PATH
-
-                    # 1. Authenticate gcloud
-                    gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
-                    gcloud config set project "$GCP_PROJECT"
-
-                    # 2. Automatically create the repo if it is missing
-                    gcloud artifacts repositories create $GCP_REPO \
-                        --repository-format=docker \
-                        --location=$GCP_REGION \
-                        --description="Docker repository for ML App" \
-                        --if-not-exists
-
-                    # 3. Configure Docker authentication
-                    gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev --quiet
-
-                    # 4. Build and tag
-                    docker build -t ${GCP_REGION}-docker.pkg.dev/$GCP_PROJECT/$GCP_REPO/ml-project:latest .
-
-                    # 5. Push
-                    docker push ${GCP_REGION}-docker.pkg.dev/$GCP_PROJECT/$GCP_REPO/ml-project:latest   
+                        export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
+                        
+                        # This will create the repo automatically if it is missing
+                        gcloud artifacts repositories create my-hotel-repo \
+                            --repository-format=docker \
+                            --location=us-central1 \
+                            --quiet || echo "Repository already exists..."
+                            
+                        # Configure docker auth helper using the impersonation file
+                        gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+                        
+                        # Build and Push
+                        docker build -t us-central1-docker.pkg.dev/your-project-id/my-hotel-repo/hotel-app:latest .
+                        docker push us-central1-docker.pkg.dev/your-project-id/my-hotel-repo/hotel-app:latest
                     '''
                 }
+
             }
         }
+
 
     }
 }
