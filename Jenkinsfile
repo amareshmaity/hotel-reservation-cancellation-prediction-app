@@ -37,7 +37,8 @@ pipeline {
         stage('Building and Pushing Docker Image to Artifact Registry') {
             steps {
                 withCredentials([
-                    file(credentialsId: 'GCP_KEY', variable: 'GOOGLE_APPLICATION_CREDENTIALS') {
+                    file(credentialsId: 'GCP_KEY', variable: 'GOOGLE_APPLICATION_CREDENTIALS')
+                    ]) {
                         echo 'Ensuring repo exists, then building and pushing Docker image...'
 
                         sh '''
@@ -60,7 +61,6 @@ pipeline {
                         
                         '''
                     }
-                ])
             }
         }
     }
