@@ -91,14 +91,7 @@ The exact version may be different depending on when the CLI is installed.
 
 ## Step 2. Give Jenkins Access to Docker (Docker inside Jenkins)
 
-Jenkins will later execute Docker commands such as:
-
-```bash
-docker build
-docker push
-```
-
-Therefore, the Jenkins user needs Docker access.
+The Jenkins user needs Docker access.
 
 Inside the Jenkins container:
 
@@ -317,7 +310,7 @@ pipeline {
         // Define your Artifact Registry Region and Repo Name
         GCP_REGION    = 'us-central1'
         GCP_REPO      = 'ml-project-repo'
-        GCLOUD_PATH   = '/usr/bin'
+        GCLOUD_PATH   = '/var/jenkins_home/google-cloud-sdk/bin'
     }
 
     stages {
