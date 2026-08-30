@@ -8,7 +8,7 @@ This project builds a production-ready Machine Learning system that predicts whe
 
 The project demonstrates how a machine learning model can move from experimentation to a fully automated production deployment pipeline.
 
----
+<br/>
 
 ## Business Problem
 
@@ -34,7 +34,7 @@ By predicting potential cancellations in advance, hotels can:
 * Identify users who repeatedly cancel reservations.
 * Reduce fraudulent booking activities.
 
----
+<br/>
 
 ## Project Architecture
 
@@ -96,7 +96,7 @@ By predicting potential cancellations in advance, hotels can:
                 └─────────────────────┘
 ```
 
----
+<br/>
 
 ## Technology Stack
 
@@ -120,7 +120,7 @@ By predicting potential cancellations in advance, hotels can:
 
 * Google Cloud Platform (GCP)
 * Google Cloud Storage (GCS)
-* Google Container Registry (GCR)
+* Google Artifact Registry 
 * Google Cloud Run
 
 ### Deployment
@@ -134,7 +134,7 @@ By predicting potential cancellations in advance, hotels can:
 * HTML
 * CSS
 
----
+<br/>
 
 ## Dataset
 
@@ -161,7 +161,7 @@ booking_status
 1 → Cancelled
 ```
 
----
+<br/>
 
 ## Project Structure
 
@@ -174,34 +174,30 @@ hotel-reservation-prediction/
 │   └── config.yaml
 │
 ├── notebooks/
-│   ├── EDA.ipynb
-│   ├── Feature_Engineering.ipynb
-│   └── Model_Training.ipynb
+│   ├──notebook.ipynb
 │
 ├── src/
 │   ├── components/
 │   │   ├── data_ingestion.py
 │   │   ├── data_processing.py
-│   │   ├── model_trainer.py
-│   │   └── model_evaluation.py
+│   │   ├── model_training.py
 │   │
 │   ├── pipeline/
 │   │   ├── training_pipeline.py
-│   │   └── prediction_pipeline.py
 │   │
 │   ├── utils/
 │   │   ├── common.py
 │   │   └── logger.py
 │   │
-│   ├── exception.py
-│   └── constants.py
+│   └── exception.py
 │
 ├── templates/
 │   └── index.html
 │
 ├── static/
+│   └── style.css
 │
-├── app.py
+├── application.py
 │
 ├── Dockerfile
 ├── Jenkinsfile
@@ -212,7 +208,7 @@ hotel-reservation-prediction/
 └── LICENSE
 ```
 
----
+<br/>
 
 ## MLflow Experiment Tracking
 
@@ -235,7 +231,7 @@ Tracked information includes:
 ✔ Model Artifacts
 ```
 
----
+<br/>
 
 ## CI/CD Pipeline
 
@@ -269,7 +265,7 @@ Jenkins Pipeline
 5. Application is deployed to Cloud Run.
 6. Updated application becomes live.
 
----
+<br/>
 
 ## Docker Deployment
 
@@ -285,7 +281,7 @@ Run container:
 docker run -p 8080:8080 hotel-reservation-prediction
 ```
 
----
+<br/>
 
 ## Local Setup
 
@@ -341,7 +337,7 @@ python src/pipeline/training_pipeline.py
 python app.py
 ```
 
----
+<br/>
 
 ## Future Improvements
 
@@ -355,7 +351,7 @@ python app.py
 * Drift Detection
 * Feature Store Integration
 
----
+<br/>
 
 ## Key Learning Outcomes
 
@@ -370,7 +366,7 @@ This project demonstrates:
 * Flask Model Serving
 * Industry Standard Project Structuring
 
----
+<br/>
 
 ## Author
 
@@ -382,7 +378,7 @@ GitHub: https://github.com/amareshmaity
 
 LinkedIn: https://linkedin.com/in/amareshmaity
 
----
+<br/>
 
 ## License
 
