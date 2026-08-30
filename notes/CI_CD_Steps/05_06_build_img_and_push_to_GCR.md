@@ -70,6 +70,7 @@ echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.clou
 apt-get update && apt-get install -y google-cloud-cli
 
 ```
+
 After installation, verify it using:
 
 ```bash
@@ -85,7 +86,6 @@ Google Cloud SDK 505.x.x
 ```
 
 The exact version may be different depending on when the CLI is installed.
-
 
 <br/>
 
@@ -151,8 +151,6 @@ and return to the Jenkins dashboard.
 ## Step 4. Add the GCP Service Account Key to Jenkins
 
 Jenkins also needs authentication with Google Cloud.
-
-
 
 ### 4.1 Create a Secret File Credential
 
@@ -266,8 +264,6 @@ Cloud Resource Manager API
 
 Enable it.
 
-
-
 ### Required APIs
 
 ```text
@@ -308,9 +304,7 @@ A production CI/CD system should follow the **principle of least privilege** and
 
 <br/>
 
-
 ## Step 6. Add below codes to Jenkinsfile
-
 
 ```groovy
 pipeline {
@@ -319,7 +313,7 @@ pipeline {
     environment {
         VENV_DIR = 'venv'
         // Google Cloud Project ID
-        GCP_PROJECT   = 'your-lowercase-project-id' 
+        GCP_PROJECT   = 'your-lowercase-project-id'
         // Define your Artifact Registry Region and Repo Name
         GCP_REGION    = 'us-central1'
         GCP_REPO      = 'ml-project-repo'
@@ -342,38 +336,34 @@ pipeline {
         stage('Building and Pushing Docker Image to Artifact Registry') {
             steps {
                 withCredentials([
-                    file(credentialsId: 'GCP_KEY', variable: 'GOOGLE_APPLICATION_CREDENTIALS')
+                    file(credentialsId: 'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')
                 ]) {
-                    echo 'Logging into Google Artifact Registry and pushing image...'
-
+                    echo 'Logging into Google Artifact Registry, Building and Pushing Docker Image to GAR...'
                     sh '''
-                        # 1. Point Google's underlying libraries to your impersonation file
-                        export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
+                    # Fixed: Removed spaces around the assignment operator
+                    export PATH=$PATH:${GCLOUD_PATH}
 
-                        # 2. Extract a temporary 1-hour access token natively using your configuration
-                        TOKEN=$(gcloud auth print-access-token)
+                    # Activate GCP Service Account
+                    gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+                    gcloud config set project ${GCP_PROJECT}
 
-                        # 3. Create the Artifact Registry repository using your personal authenticated token
-                        gcloud artifacts repositories create "$GCP_REPO" \
-                            --repository-format=docker \
-                            --location="$GCP_REGION" \
-                            --description="Docker repository for ML App" \
-                            --token="$TOKEN" \
-                            --quiet || echo "Repository already exists, moving forward..."
+                    # Configure docker authentication for the region
+                    gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev --quiet
 
-                        # 4. Build the Docker container image locally
-                        docker build -t "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest" .
+                    # Fixed: Corrected --quite to --quiet, and removed undefined $TOKEN flag
+                    gcloud artifacts repositories create ${GCP_REPO} \
+                        --repository-format=docker \
+                        --location=${GCP_REGION} \
+                        --description="Docker repository for ML App" \
+                        --quiet || echo "Repository already exists, moving forward..."
 
-                        # 5. Direct login to Docker registry passing the extracted token string
-                        echo "$TOKEN" | docker login -u oauth2accesstoken --password-stdin "https://${GCP_REGION}-docker.pkg.dev"
+                    # Build the image using host-mapped Docker
+                    docker build -t ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest .
 
-                        # 6. Push the image directly to your repository
-                        docker push "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest"   
+                    # Push the image to Google Artifact Registry
+                    docker push ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPO}/ml-project:latest
                     '''
                 }
-
-
-
             }
         }
 
@@ -428,8 +418,6 @@ Jenkins will execute the pipeline from the beginning.
 #### Check Console Output
 
 Whether it has been successfully built or not.
-
-
 
 <br/>
 
@@ -489,8 +477,6 @@ At this point, the pipeline has reached:
 └──────────────────────────────────────┘
 ```
 
-
-
 > **Jenkins authenticates with Google Cloud, builds the ML project's Docker image using the project Dockerfile, and pushes that image to Google Container Registry.**
 
-The Docker image is now available in Google Cloud and is ready for the **next stage: deploying the image to Google Cloud Run**. 
+The Docker image is now available in Google Cloud and is ready for the **next stage: deploying the image to Google Cloud Run**.
