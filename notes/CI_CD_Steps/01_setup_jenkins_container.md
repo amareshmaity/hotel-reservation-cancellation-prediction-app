@@ -165,7 +165,7 @@ Start Jenkins using:
 ```bash
 docker run -d --name jenkins-dind ^
   --privileged ^
-  -p 8081:8080 ^
+  -p 8080:8080 ^
   -p 50000:50000 ^
   -v //var/run/docker.sock:/var/run/docker.sock ^
   -v jenkins_home:/var/jenkins_home ^
@@ -179,7 +179,7 @@ docker run -d --name jenkins-dind ^
 | `-d`               | Runs container in background              |
 | `--name`           | Gives the container a name                |
 | `--privileged`     | Gives the container elevated privileges   |
-| `-p 8081:8080`     | Makes Jenkins web UI available            |
+| `-p 8080:8080`     | Makes Jenkins web UI available            |
 | `-p 50000:50000`   | Jenkins agent communication port          |
 | `-v` Docker socket | Allows Jenkins to communicate with Docker |
 | `-v jenkins_home`  | Persists Jenkins configuration/data       |
@@ -203,7 +203,7 @@ jenkins-dind
 with port mappings including:
 
 ```text
-8081 → 8080
+8080 → 8080
 50000 → 50000
 ```
 

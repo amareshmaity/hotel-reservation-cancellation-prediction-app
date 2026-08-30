@@ -370,3 +370,7 @@ Model Training
 ```
 
 The uploaded dataset will be fetched from the GCP Bucket during the **Data Ingestion** stage of the MLOps pipeline.
+
+<br/>
+
+gcloud cheatsheet - https://docs.cloud.google.com/sdk/docs/cheatsheet

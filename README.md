@@ -308,7 +308,7 @@ Activate:
 Windows
 
 ```bash
-venv\Scripts\activate
+venv\Scripts\activate.bat
 ```
 
 Linux / Mac

@@ -1,5 +1,5 @@
 data_ingestion:
-  bucket_name: "mybucket7963"
+  bucket_name: "hotel_bucket_5653"
   bucket_file_name: "hotel_reservations.csv"
   test_ratio: 0.2
 
